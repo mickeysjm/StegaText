@@ -8,7 +8,6 @@ import argparse
 from utils import get_model, encode_context
 from block_baseline import get_bins, encode_block, decode_block
 from huffman_baseline import encode_huffman, decode_huffman
-from patient_huffman_baseline import encode_patient_huffman, decode_patient_huffman
 from arithmetic_baseline import encode_arithmetic, decode_arithmetic
 from saac import encode_saac, decode_saac
 
@@ -66,8 +65,6 @@ def main(args):
         out, nll, kl, words_per_bit = encode_block(model, enc, message, context_tokens, block_size, bin2words, words2bin, device=device)
     elif steganography_method == 'huffman':
         out, nll, kl, words_per_bit = encode_huffman(model, enc, message, context_tokens, block_size, device=device)
-    elif steganography_method == 'patient-huffman':
-        out, nll, kl, words_per_bit = encode_patient_huffman(model, enc, message, context_tokens, block_size, device=device, delta=1.0)
     elif steganography_method == 'arithmetic':
         out, nll, kl, words_per_bit, Hq, kl_list = encode_arithmetic(model, enc, message, context_tokens, device=device, temp=temp, precision=precision, topk=topk)
     elif steganography_method == 'saac':
@@ -81,9 +78,6 @@ def main(args):
         message_rec = decode_block(model, enc, covertext, context_tokens, block_size, bin2words, words2bin)
     elif steganography_method == 'huffman':
         message_rec = decode_huffman(model, enc, covertext, context_tokens, block_size)
-    elif steganography_method == 'patient-huffman':
-        print("Not implemented yet")
-        exit(-1)
     elif steganography_method == 'arithmetic':
         message_rec = decode_arithmetic(model, enc, covertext, context_tokens, device=device, temp=temp, precision=precision, topk=topk)
     elif steganography_method == 'saac':
@@ -106,7 +100,7 @@ if __name__ == '__main__':
     parser.add_argument("-plaintext", type=str, default="", help="your secret plaintext, use a double-quotes if necessary")
     parser.add_argument("-context", type=str, default="", help="context used for steganography, use a double-quotes if necessary")
     parser.add_argument("-encrypt", type=str, default="arithmetic", choices=["arithmetic", "utf8"])
-    parser.add_argument("-encode", type=str, default="bins", choices=["bins", "huffman", "patient-huffman", "arithmetic", "saac"])
+    parser.add_argument("-encode", type=str, default="bins", choices=["bins", "huffman", "arithmetic", "saac"])
     parser.add_argument("-lm", type=str, default="gpt2")
     parser.add_argument("-device", type=str, default="0", help="your gpu device id")
     parser.add_argument("-block_size", type=int, default=4, help="block_size for bin/huffman encoding method")

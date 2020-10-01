@@ -8,7 +8,6 @@ import argparse
 from utils import get_model, encode_context, get_output_file_name
 from block_baseline import get_bins, encode_block, decode_block
 from huffman_baseline import encode_huffman, decode_huffman
-from patient_huffman_baseline import encode_patient_huffman, decode_patient_huffman
 from arithmetic_baseline import encode_arithmetic, decode_arithmetic
 from saac import encode_saac, decode_saac
 from tqdm import tqdm
@@ -66,7 +65,7 @@ def bits2covertext(message, context, model, enc, model_type, steganography_metho
         covertext: a str of cover text
         info: a dictionary of steganography information
     """
-    assert steganography_method in {"bins", "huffman", "patient-huffman", "arithmetic", "saac"}, f"Unsupported steganography method: {steganography_method}"
+    assert steganography_method in {"bins", "huffman", "arithmetic", "saac"}, f"Unsupported steganography method: {steganography_method}"
     assert model_type in {"gpt2"}, f"Unsupported model type: {model_type}"
 
     # for huffman and bins coding
@@ -100,9 +99,6 @@ def bits2covertext(message, context, model, enc, model_type, steganography_metho
         info = {"n_bits": n_bits, "ppl": math.exp(nll), "kl": kl, "words_per_bit": words_per_bit, "bits_per_word": 1.0/words_per_bit, "Hq": Hq/0.69315}
     elif steganography_method == 'huffman':
         out, nll, kl, words_per_bit = encode_huffman(model, enc, message, context_tokens, block_size, device=device, finish_sent=finish_sent)
-        info = {"n_bits": n_bits, "ppl": math.exp(nll), "kl": kl, "words_per_bit": words_per_bit, "bits_per_word": 1.0/words_per_bit, "Hq": Hq/0.69315}
-    elif steganography_method == 'patient-huffman':
-        out, nll, kl, words_per_bit = encode_patient_huffman(model, enc, message, context_tokens, block_size, delta=1.0, device=device, finish_sent=finish_sent)
         info = {"n_bits": n_bits, "ppl": math.exp(nll), "kl": kl, "words_per_bit": words_per_bit, "bits_per_word": 1.0/words_per_bit, "Hq": Hq/0.69315}
     elif steganography_method == 'arithmetic':
         out, nll, kl, words_per_bit, Hq, kl_list = encode_arithmetic(model, enc, message, context_tokens, device=device, temp=temp, finish_sent=finish_sent, precision=precision, topk=topk)
@@ -197,9 +193,9 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-dataset", type=str, default="drug", choices=["drug", "cnn_dm", "covid_19", "random"])
-    parser.add_argument("-dataset_path", type=str, default="../drug/")
+    parser.add_argument("-dataset_path", type=str, default="./datasets/drug/")
     parser.add_argument("-encrypt", type=str, default="cached", choices=["utf8", "arithmetic", "cached"])
-    parser.add_argument("-encode", type=str, default="saac", choices=["bins", "huffman", "patient-huffman", "arithmetic", "saac"])
+    parser.add_argument("-encode", type=str, default="saac", choices=["bins", "huffman", "arithmetic", "saac"])
     parser.add_argument("-lm", type=str, default="gpt2")
     parser.add_argument("-device", type=str, default="0", help="your gpu device id")
     parser.add_argument("-block_size", type=int, default=4, help="block_size for bin/huffman encoding method")

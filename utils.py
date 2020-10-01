@@ -111,9 +111,13 @@ def get_output_file_name(args):
     dataset_path = args["dataset_path"]
     encryption_method = args["encrypt"]
     steganography_method = args["encode"]
-    if steganography_method in ["bins", "huffman", "patient-huffman"]:
+    if steganography_method in ["bins", "huffman"]:
         block_size = args["block_size"]
         output_name = f"{dataset_path}/results_{encryption_method}_{steganography_method}_block_{block_size}.json"
+    elif steganography_method == "patient-huffman":
+        block_size = args["block_size"]
+        epsilon = args["epsilon"]
+        output_name = f"{dataset_path}/results_{encryption_method}_{steganography_method}_block_{block_size}_epsilon_{epsilon}.json"
     elif steganography_method == "arithmetic":
         precision = args["precision"]
         temp = args["temp"]
